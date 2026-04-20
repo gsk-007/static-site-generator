@@ -2,7 +2,8 @@
 
 import unittest
 
-from src.block_utils import markdown_to_blocks
+from block_utils import block_to_block_type, markdown_to_blocks
+from blocktype import BlockType
 
 
 class TestBlockUtils(unittest.TestCase):
@@ -50,6 +51,72 @@ This is the same paragraph on a new line
             ],
         )
 
+    def test_block_to_block_type_heading(self):
+        md = [
+            "# This is heading One",
+            "## This is heading Two",
+            "### This is heading Three",
+            "##### This is heading Four",
+        ]
+
+        for doc in md:
+            self.assertEqual(block_to_block_type(doc), BlockType.HEADING)
+
+    def test_block_to_block_type_code(self):
+        doc = """```
+        print("hello")
+        ```"""
+
+        self.assertEqual(block_to_block_type(doc), BlockType.CODE)
+
+
+    def test_block_to_block_type_quote(self):
+        md = [
+            "> This is a quote",
+            ">Another quote",
+        ]
+
+        for doc in md:
+            self.assertEqual(block_to_block_type(doc), BlockType.QUOTE)
+
+    def test_block_to_block_type_unordered_list(self):
+        md = [
+            "- Item one",
+            "- Item two",
+        ]
+
+        for doc in md:
+            self.assertEqual(block_to_block_type(doc), BlockType.UNORDERED_LIST)
+
+    def test_block_to_block_type_ordered_list(self):
+        md = [
+            "1. First item",
+            "1. Another item",
+        ]
+
+        for doc in md:
+            self.assertEqual(block_to_block_type(doc), BlockType.ORDERED_LIST)
+
+    def test_block_to_block_type_paragraph(self):
+        md = [
+            "This is a paragraph.",
+            "Just some random text",
+            "12345",
+        ]
+
+        for doc in md:
+            self.assertEqual(block_to_block_type(doc), BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_edge_cases(self):
+        md = [
+            "",                  # empty string
+            "   ",               # whitespace
+            "#No space heading", # invalid markdown heading
+            "-Item without space",
+        ]
+
+        for doc in md:
+            self.assertEqual(block_to_block_type(doc), BlockType.PARAGRAPH)
 
 if __name__ == "__main__":
     unittest.main()
